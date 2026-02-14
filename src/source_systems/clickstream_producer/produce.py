@@ -1,21 +1,23 @@
 import argparse
 import logging
+from pathlib import Path
 from time import sleep
 
-import avro
-import pandas as pd
 from confluent_kafka import Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 from confluent_kafka.schema_registry import SchemaRegistryClient
 from confluent_kafka.schema_registry.avro import AvroSerializer
-from confluent_kafka.serialization import (
-    MessageField,
-    SerializationContext,
-)
-from data_preparation import prepare_data
+from confluent_kafka.serialization import MessageField, SerializationContext
+from utils.event_ordering import order_event_by_time
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 logger = logging.getLogger(__name__)
+
+DATA_FILE = Path(__file__).parent.parent / "data/clickstream/click_stream.parquet"
 
 
 def parse_args():
@@ -146,7 +148,7 @@ def create_stream(
 
     # Simulate a clickstream
     logger.info("Preparing data")
-    df = prepare_data(data_path)
+    df = order_event_by_time(data_path, "event_time")
 
     # Read schema and create serializer
     with open(schema_path, "r") as file:
@@ -203,7 +205,7 @@ if __name__ == "__main__":
     logger.info("Tearing down existing topic!")
     try:
         teardown_stream(topic_name, servers)
-    except Exception as e:
+    except Exception:
         logger.info(f"Topic {topic_name} does not exist. Skipping...!")
 
     if mode == "setup":
@@ -211,7 +213,7 @@ if __name__ == "__main__":
         schema_registry_client = SchemaRegistryClient(schema_registry_conf)
 
         create_stream(
-            "./data/click_stream.parquet",
+            DATA_FILE,
             servers,
             schema_path,
             topic_name,

@@ -1,0 +1,29 @@
+services:
+  postgresql:
+    image: postgres:18
+    command: ['postgres', '-c', 'wal_level=logical']
+    container_name: oltp-app
+    healthcheck:
+      test: ['CMD', 'psql', '-U', 'user', "-d", "postgresdb", '-c', 'SELECT 1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=postgresdb
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - ../src/source_systems/oltp_app/postgres_data:/var/lib/postgresql
+
+  oltp_app:
+    image: oltp_app
+    build: 
+      context: ../src/source_systems/
+      dockerfile: ./oltp_app/Dockerfile
+    volumes:
+      - ../src/source_systems/data/oltp:/app/data/oltp
+    depends_on:
+      postgresql:
+        condition: service_healthy
