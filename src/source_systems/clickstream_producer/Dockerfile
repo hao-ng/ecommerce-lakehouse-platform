@@ -2,14 +2,19 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Copy app code
-COPY utils /app/utils
-COPY clickstream_producer /app/clickstream_producer
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE 1
+
+COPY clickstream_producer/requirements.txt ./clickstream_producer/requirements.txt
 
 # Install dependencies
-RUN pip install -r clickstream_producer/requirements.txt
+RUN pip install --no-cache-dir -r clickstream_producer/requirements.txt
 
-CMD [ "python3", "-u", "-m", "clickstream_producer.produce",\
+# Copy app code
+COPY utils ./utils
+COPY clickstream_producer ./clickstream_producer
+
+CMD [ "python3", "-m", "clickstream_producer.produce",\
     "-m", "setup",\
     "-b", "broker:29092",\
     "-s", "http://schema-registry:8081",\

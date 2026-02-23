@@ -16,7 +16,8 @@ services:
       - POSTGRES_PASSWORD=password
     volumes:
       - ../src/source_systems/oltp_app/postgres_data:/var/lib/postgresql
-
+    networks:
+      - data-platform
   oltp_app:
     image: oltp_app
     build: 
@@ -27,3 +28,9 @@ services:
     depends_on:
       postgresql:
         condition: service_healthy
+    networks:
+      - data-platform
+      
+networks:
+  data-platform:
+    external: true

@@ -1,0 +1,14 @@
+{
+  "name": "transactions-cdc",  
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "database.hostname": "postgresql",
+    "database.port": "5432",
+    "database.user": "user",
+    "database.password": "password",
+    "database.dbname" : "postgresdb",
+    "plugin.name": "pgoutput",
+    "database.server.name": "ecommerce",
+    "table.include.list": "public.transactions"
+  }
+}
