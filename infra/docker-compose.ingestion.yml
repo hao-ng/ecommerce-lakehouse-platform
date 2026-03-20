@@ -1,0 +1,19 @@
+services:
+  spark-ingestion:
+    build:
+      context: ../src
+      dockerfile: ingestion/Dockerfile
+    image: spark-ingestion:latest
+    container_name: spark-ingestion
+    working_dir: /app/ingestion
+    command: bash ingestion.sh
+    restart: on-failure
+    ports:
+      - "4040:4040"   # clickstream UI
+      - "4041:4041"   # cdc UI
+    networks:
+      - data-platform
+
+networks:
+  data-platform:
+    external: true

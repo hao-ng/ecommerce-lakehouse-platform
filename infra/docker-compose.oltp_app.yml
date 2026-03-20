@@ -15,7 +15,7 @@ services:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
     volumes:
-      - ../src/source_systems/oltp_app/postgres_data:/var/lib/postgresql
+      - oltp-data:/var/lib/postgresql
     networks:
       - data-platform
   oltp_app:
@@ -23,14 +23,19 @@ services:
     build: 
       context: ../src/source_systems/
       dockerfile: ./oltp_app/Dockerfile
+    environment:
+      - FILE_FOLDER=/app/datasets/oltp
     volumes:
-      - ../src/source_systems/data/oltp:/app/data/oltp
+      - ../datasets/oltp:/app/datasets/oltp
     depends_on:
       postgresql:
         condition: service_healthy
     networks:
       - data-platform
       
+volumes:
+  oltp-data:
+
 networks:
   data-platform:
     external: true

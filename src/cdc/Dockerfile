@@ -9,6 +9,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy app code
 COPY configs ./configs
-COPY run.sh ./run.sh
+COPY register.sh ./register.sh
 
-CMD ["/bin/sh", "./run.sh", "register_connector", "configs/postgresql-cdc.json"]
+CMD ["/bin/sh", "./register.sh", "register_connector", "configs/postgresql-cdc.json"]

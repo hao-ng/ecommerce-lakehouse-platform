@@ -1,0 +1,23 @@
+services:
+  minio:
+    image: minio/minio
+    container_name: datalake-minio
+    hostname: minio
+    ports:
+      - "9000:9000" # For API requests
+      - "9001:9001" # For UI access
+    volumes:
+      - datalake:/data
+    environment:
+      MINIO_ACCESS_KEY: minioaccess
+      MINIO_SECRET_KEY: miniosecret
+    command: server --console-address ":9001" /data
+    networks:
+      - data-platform
+
+volumes:
+  datalake:
+
+networks:
+  data-platform:
+    external: true

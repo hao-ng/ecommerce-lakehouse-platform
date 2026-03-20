@@ -9,7 +9,13 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "pyspark==3.5.8",
     "ruff>=0.14.14",
+]
+ingestion = [
+    "minio>=7.2.20",
+    "python-dotenv>=1.2.1",
+    "requests>=2.32.5",
 ]
 kafka-producer = [
     "attrs>=25.4.0",

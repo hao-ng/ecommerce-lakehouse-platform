@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 from pathlib import Path
 from time import sleep
 
@@ -17,7 +18,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-DATA_FILE = Path(__file__).parent.parent / "data/clickstream/click_stream.parquet"
+DATASETS_DIR = Path(
+    os.getenv("DATASETS_DIR")
+    or Path(__file__).resolve().parents[3] / "datasets/clickstream"
+)
+DATA_FILE = DATASETS_DIR / "click_stream.parquet"
 
 
 def parse_args():

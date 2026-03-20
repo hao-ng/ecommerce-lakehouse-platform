@@ -96,8 +96,10 @@ services:
     build: 
       context: ../src/source_systems/
       dockerfile: ./clickstream_producer/Dockerfile 
+    environment:
+      - DATASETS_DIR=/app/datasets/clickstream
     volumes:
-      - ../src/source_systems/data/clickstream:/app/data/clickstream
+      - ../datasets/clickstream:/app/datasets/clickstream
     depends_on:
       broker:
         condition: service_healthy

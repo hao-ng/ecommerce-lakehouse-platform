@@ -10,7 +10,10 @@ from oltp_app.logging_config import setup_logging
 from oltp_app.postgresql_client import PostgresSQLClient
 from utils.event_ordering import order_event_by_time
 
-FILE_FOLDER = Path(__file__).parent.parent / "data/oltp"
+FILE_FOLDER = Path(
+    os.getenv("FILE_FOLDER") or Path(__file__).resolve().parents[3] / "datasets/oltp"
+)
+
 
 setup_logging()
 
