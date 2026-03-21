@@ -90,21 +90,6 @@ services:
       CONTROL_CENTER_CONNECT_CONNECT-DEFAULT_CLUSTER: 'debezium:8083'
     networks:
       - data-platform
-  # Simulation of sending messages to Kafka topics
-  kafka-producer:
-    container_name: clickstream-kafka-producer
-    build: 
-      context: ../src/source_systems/
-      dockerfile: ./clickstream_producer/Dockerfile 
-    environment:
-      - DATASETS_DIR=/app/datasets/clickstream
-    volumes:
-      - ../datasets/clickstream:/app/datasets/clickstream
-    depends_on:
-      broker:
-        condition: service_healthy
-    networks:
-      - data-platform
       
 networks:
   data-platform:

@@ -1,15 +1,15 @@
 FROM apache/spark:3.5.8
 
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 USER root
 
 WORKDIR /app
 
-# Copy requirements first for better layer caching
-COPY ingestion/requirements.txt ./ingestion/requirements.txt
+COPY pyproject.toml uv.lock ./
 
-# Install dependencies
-RUN pip install --no-cache-dir -r ingestion/requirements.txt
+RUN uv sync --locked --no-dev --no-install-project --group ingestion
 
-ENV PATH="/opt/spark/bin:${PATH}"
+ENV PATH="/app/.venv/bin:/opt/spark/bin:${PATH}"
 
-COPY ingestion ./ingestion
+COPY src/ingestion ./ingestion

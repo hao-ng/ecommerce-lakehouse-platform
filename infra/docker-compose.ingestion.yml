@@ -1,8 +1,8 @@
 services:
   spark-ingestion:
     build:
-      context: ../src
-      dockerfile: ingestion/Dockerfile
+      context: ..
+      dockerfile: src/ingestion/Dockerfile
     image: spark-ingestion:latest
     container_name: spark-ingestion
     working_dir: /app/ingestion

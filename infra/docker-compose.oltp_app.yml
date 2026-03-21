@@ -21,8 +21,8 @@ services:
   oltp_app:
     image: oltp_app
     build: 
-      context: ../src/source_systems/
-      dockerfile: ./oltp_app/Dockerfile
+      context: ..
+      dockerfile: src/source_systems/oltp_app/Dockerfile
     environment:
       - FILE_FOLDER=/app/datasets/oltp
     volumes:
