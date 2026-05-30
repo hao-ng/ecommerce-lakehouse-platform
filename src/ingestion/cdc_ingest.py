@@ -1,33 +1,37 @@
 import logging
 
-from common.config import CDC_TABLES
-from common.logging_config import setup_logging
-from common.spark_session import get_spark_session
-from common.spark_streaming import (
+from pyspark.sql import SparkSession
+from schema_registry import SchemaRegistryClient
+from spark_streaming import (
     deserialize_avro,
     read_from_kafka,
     write_stream_to_lakehouse,
 )
-from schema_registry import SchemaRegistryClient
-from dotenv import load_dotenv
-import os
 
-load_dotenv()
+from common.config import BRONZE_CDC_TABLES, BronzeConfig
+from common.logging_config import setup_logging
+from common.settings import BronzeEnvConfig
+from common.spark_session import get_spark_session
+
 setup_logging()
 logger = logging.getLogger(__name__)
+env = BronzeEnvConfig()
 
-SCHEMA_REGISTRY_URL = os.getenv("SCHEMA_REGISTRY_URL")
 
-
-def execute(spark, table, config, schema_registry_client):
-    logger.info(f"Starting cdc ingestion job for {table} table")
+def execute(
+    spark: SparkSession,
+    env: BronzeEnvConfig,
+    config: BronzeConfig,
+    schema_registry_client: SchemaRegistryClient,
+):
+    logger.info(f"Starting cdc ingestion job for {config.name} table")
 
     # Fetch the latest schema from the registry
-    schema = schema_registry_client.get_schema(config["schema_subject"])
-    logger.info(f"Fetched schema for subject {config['schema_subject']}")
+    schema = schema_registry_client.get_schema(config.schema_subject)
+    logger.info(f"Fetched schema for subject {config.schema_subject}")
 
     # Read from Kafka
-    df = read_from_kafka(spark, config)
+    df = read_from_kafka(spark, env, config)
 
     # Deserialize Avro data
     deserialized_df = deserialize_avro(df, schema)
@@ -37,11 +41,11 @@ def execute(spark, table, config, schema_registry_client):
 
 
 def main():
-    spark = get_spark_session("CDC Ingestion")
-    schema_registry_client = SchemaRegistryClient(SCHEMA_REGISTRY_URL)
+    spark = get_spark_session("CDC Ingestion", env)
+    schema_registry_client = SchemaRegistryClient(env.schema_registry_url)
 
-    for table, config in CDC_TABLES.items():
-        execute(spark, table, config, schema_registry_client)
+    for _, config in BRONZE_CDC_TABLES.items():
+        execute(spark, env, config, schema_registry_client)
 
     spark.streams.awaitAnyTermination()
 

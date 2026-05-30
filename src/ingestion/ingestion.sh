@@ -15,7 +15,7 @@ spark-submit \
   --packages ${PACKAGES} \
   clickstream_ingest.py &
 
-sleep 30
+sleep 60
 
 spark-submit \
   --master spark://spark-master:7077 \
@@ -24,6 +24,6 @@ spark-submit \
   --total-executor-cores 2 \
   --conf spark.ui.port=4041 \
   --packages ${PACKAGES} \
-  cdc_ingest.py &
+  cdc_ingest.py
 
 wait

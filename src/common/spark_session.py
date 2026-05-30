@@ -1,14 +1,8 @@
 from pyspark.sql import SparkSession
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
-MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT")
+from common.settings import BaseEnvConfig
 
 
-def get_spark_session(app_name: str) -> SparkSession:
+def get_spark_session(app_name: str, env: BaseEnvConfig) -> SparkSession:
     """Create and return a SparkSession configured for Delta Lake and MinIO.
 
     Args:
@@ -25,9 +19,9 @@ def get_spark_session(app_name: str) -> SparkSession:
             "org.apache.spark.sql.delta.catalog.DeltaCatalog",
         )
         .config("spark.databricks.delta.schema.autoMerge.enabled", "true")
-        .config("spark.hadoop.fs.s3a.access.key", MINIO_ACCESS_KEY)
-        .config("spark.hadoop.fs.s3a.secret.key", MINIO_SECRET_KEY)
-        .config("spark.hadoop.fs.s3a.endpoint", MINIO_ENDPOINT)
+        .config("spark.hadoop.fs.s3a.access.key", env.minio_access_key)
+        .config("spark.hadoop.fs.s3a.secret.key", env.minio_secret_key)
+        .config("spark.hadoop.fs.s3a.endpoint", env.minio_endpoint)
         .config("spark.hadoop.fs.s3a.path.style.access", "true")
         .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
         .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")

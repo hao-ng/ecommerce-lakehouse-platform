@@ -62,11 +62,9 @@ class Customer(Model):
 class Transaction(Model):
     __tablename__ = "transactions"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-
+    booking_id: Mapped[str] = mapped_column(String(50), primary_key=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     customer_id: Mapped[int] = mapped_column()
-    booking_id: Mapped[str] = mapped_column(String(50))
     session_id: Mapped[str] = mapped_column(String(50))
     product_metadata: Mapped[str] = mapped_column(JSONB)
     payment_method: Mapped[str] = mapped_column(String(11))

@@ -11,5 +11,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --locked --no-dev --no-install-project --group ingestion
 
 ENV PATH="/app/.venv/bin:/opt/spark/bin:${PATH}"
+ENV PYTHONPATH="/app"
 
+COPY src/common ./common
 COPY src/ingestion ./ingestion

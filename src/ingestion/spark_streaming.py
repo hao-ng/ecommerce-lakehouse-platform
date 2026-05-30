@@ -3,24 +3,29 @@ from pyspark.sql.avro.functions import from_avro
 from pyspark.sql.functions import expr
 from pyspark.sql.streaming import StreamingQuery
 
+from common.config import BronzeConfig
+from common.settings import BronzeEnvConfig
 
-def read_from_kafka(spark: SparkSession, config: dict) -> DataFrame:
+
+def read_from_kafka(
+    spark: SparkSession, env: BronzeEnvConfig, config: BronzeConfig
+) -> DataFrame:
     return (
         spark.readStream.format("kafka")
-        .option("kafka.bootstrap.servers", config["kafka_bootstrap_servers"])
-        .option("subscribe", config["topic"])
+        .option("kafka.bootstrap.servers", env.kafka_bootstrap_server)
+        .option("subscribe", config.topic)
         .option("startingOffsets", "earliest")
         .load()
     )
 
 
-def write_stream_to_lakehouse(df: DataFrame, config: dict) -> StreamingQuery:
+def write_stream_to_lakehouse(df: DataFrame, config: BronzeConfig) -> StreamingQuery:
     return (
         df.writeStream.format("delta")
         .outputMode("append")
-        .option("path", config["output_path"])
-        .option("checkpointLocation", config["checkpoint_location"])
-        .trigger(processingTime=config["trigger"])
+        .option("path", config.output_path)
+        .option("checkpointLocation", config.checkpoint_location)
+        .trigger(processingTime=config.trigger)
         .start()
     )
 
