@@ -1,0 +1,16 @@
+services:
+  kafka-producer:
+    container_name: clickstream-kafka-producer
+    build: 
+      context: ..
+      dockerfile: src/source_systems/clickstream_producer/Dockerfile 
+    environment:
+      - DATASETS_DIR=/app/datasets/clickstream
+    volumes:
+      - ../datasets/clickstream:/app/datasets/clickstream
+    networks:
+      - data-platform
+      
+networks:
+  data-platform:
+    external: true

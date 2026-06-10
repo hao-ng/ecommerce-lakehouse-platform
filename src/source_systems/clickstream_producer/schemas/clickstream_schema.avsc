@@ -1,0 +1,32 @@
+{
+    "doc": "Schema for clickstream data",
+    "type": "record",
+    "name": "Clickstream",
+    "fields" : [
+        {
+            "name": "session_id",
+            "type": "string"
+        },
+        {
+            "name": "event_name",
+            "type": "string"
+        },
+        {
+            "name": "event_time",
+            "type": "string"
+        },
+        {
+            "name": "event_id",
+            "type": "string"
+        },
+        {
+            "name": "traffic_source",
+            "type": "string"
+        },
+        {
+            "name": "event_metadata",
+            "type": ["null", "string"],
+            "default": null
+        }
+    ]
+}

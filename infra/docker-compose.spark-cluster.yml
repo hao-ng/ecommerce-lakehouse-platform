@@ -1,0 +1,50 @@
+services:
+  spark-master:
+    image: apache/spark:3.5.8
+    container_name: spark-master
+    hostname: spark-master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+    environment:
+      SPARK_MASTER_HOST: spark-master
+      SPARK_MASTER_PORT: 7077
+      SPARK_MASTER_WEBUI_PORT: 8090
+    ports:
+      - "7077:7077"
+      - "8090:8090"
+    networks:
+      - data-platform
+
+  spark-worker-1:
+    image: apache/spark:3.5.8
+    container_name: spark-worker-1
+    hostname: spark-worker-1
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_WORKER_WEBUI_PORT: 8091
+      SPARK_WORKER_CORES: 2
+
+    ports:
+      - "8091:8091"
+    networks:
+      - data-platform
+
+  spark-worker-2:
+    image: apache/spark:3.5.8
+    container_name: spark-worker-2
+    hostname: spark-worker-2
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_WORKER_WEBUI_PORT: 8092
+      SPARK_WORKER_CORES: 2
+    ports:
+      - "8092:8092"
+    networks:
+      - data-platform
+
+networks:
+  data-platform:
+    external: true
