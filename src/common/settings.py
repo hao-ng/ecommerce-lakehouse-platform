@@ -16,3 +16,7 @@ class BronzeEnvConfig(BaseEnvConfig):
 
 class SilverEnvConfig(BaseEnvConfig):
     pass
+
+
+class GoldEnvConfig(BaseEnvConfig):
+    pass

@@ -1,5 +1,5 @@
 import argparse
-from cdc import make_cdc_merge_fn
+from cdc import build_cdc_merge_writer
 from writers import build_batch_writer
 from common.spark_session import get_spark_session
 from common.config import SILVER_TABLES, BRONZE_TABLES
@@ -24,7 +24,7 @@ def main():
     args = parse_args()
     config = SILVER_TABLES[args.table]
     spark = get_spark_session(f"CDC for {args.table}", env)
-    merge_fn = build_batch_writer(config, make_cdc_merge_fn)
+    merge_fn = build_batch_writer(config, build_cdc_merge_writer)
     table = BRONZE_TABLES[args.table].output_path
     query = (
         spark.readStream.format("delta")

@@ -25,7 +25,7 @@ silver:
     source_key_cols: [id]
 
   transactions:
-    source_key_cols: [id]
+    source_key_cols: [booking_id]
     cast:
       timestamp: [created_at, shipment_date_limit]
     children:
@@ -44,3 +44,13 @@ silver:
         source_key_cols: ["event_id"]
       clickstream_add_promo_events:
         source_key_cols: ["event_id"]
+
+gold:
+  dim_products:
+    sources: [products]
+  dim_customers:
+    sources: [customers]
+  dim_date:
+    sources: []
+  fact_transactions:
+    sources: [transactions]

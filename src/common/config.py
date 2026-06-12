@@ -10,6 +10,7 @@ from pydantic import BaseModel
 # Path
 _BRONZE_BASE = "s3a://datalake/bronze"
 _SILVER_BASE = "s3a://datalake/silver"
+_GOLD_BASE = "s3a://datalake/gold"
 _CHECKPOINT_BASE = "s3a://datalake/checkpoints"
 
 
@@ -74,6 +75,20 @@ class SilverConfig(BaseModel):
         return f"{_CHECKPOINT_BASE}/silver/{self.name}"
 
 
+class GoldConfig(BaseModel):
+    name: str
+    sources: list[str] = []
+
+    @property
+    def source_paths(self) -> str:
+        paths = {source: f"{_SILVER_BASE}/{source}" for source in self.sources}
+        return paths
+
+    @property
+    def gold_path(self) -> str:
+        return f"{_GOLD_BASE}/{self.name}"
+
+
 def load_config(path: str = None) -> dict[str, BronzeConfig]:
     if path is None:
         path = os.path.join(os.path.dirname(__file__), "config.yml")
@@ -96,10 +111,14 @@ def load_config(path: str = None) -> dict[str, BronzeConfig]:
         }
         silver[name] = SilverConfig(name=name, children=children_parsed, **cfg)
 
-    return bronze, silver
+    gold = {
+        name: GoldConfig(name=name, **cfg) for name, cfg in raw.get("gold", {}).items()
+    }
+
+    return bronze, silver, gold
 
 
-BRONZE_TABLES, SILVER_TABLES = load_config()
+BRONZE_TABLES, SILVER_TABLES, GOLD_TABLES = load_config()
 BRONZE_CDC_TABLES = {k: v for k, v in BRONZE_TABLES.items() if v.type == BronzeType.CDC}
 BRONZE_APPEND_TABLES = {
     k: v for k, v in BRONZE_TABLES.items() if v.type == BronzeType.APPEND
