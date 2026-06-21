@@ -1,0 +1,17 @@
+FROM apache/spark:3.5.8
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+USER root
+
+WORKDIR /app
+
+COPY pyproject.toml uv.lock ./
+
+RUN uv sync --locked --no-dev --no-install-project --group setup
+
+ENV PATH="/app/.venv/bin:/opt/spark/bin:${PATH}"
+ENV PYTHONPATH="/app"
+
+COPY src/common ./common
+COPY src/setup ./setup

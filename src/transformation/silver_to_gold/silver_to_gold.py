@@ -1,8 +1,11 @@
-from common.spark_session import get_spark_session
-from common.settings import GoldEnvConfig
-from common.config import GOLD_TABLES
 import argparse
-from transforms import run_gold_transform, TRANSFORM_REGISTRY
+
+from pyspark.sql import SparkSession, DataFrame
+from transforms import TRANSFORM_REGISTRY, run_gold_transform
+
+from common.config import GOLD_TABLES, GoldConfig
+from common.settings import GoldEnvConfig
+from common.spark_session import get_spark_session
 
 
 def parse_args():
@@ -34,6 +37,18 @@ def parse_args():
 env = GoldEnvConfig()
 
 
+def overwrite_and_register_gold_table(
+    spark: SparkSession, df: DataFrame, config: GoldConfig
+) -> None:
+    (df.write.format("delta").mode("overwrite").save(config.table_path))
+
+    spark.sql(f"""
+        CREATE TABLE IF NOT EXISTS {config.qualified_name}
+        USING DELTA
+        LOCATION '{config.table_path}'
+    """)
+
+
 def main():
     args = parse_args()
     config = GOLD_TABLES[args.table]
@@ -42,7 +57,7 @@ def main():
 
     output_df = run_gold_transform(spark, config, transform_fn, vars(args))
 
-    output_df.write.format("delta").mode("append").save(config.gold_path)
+    overwrite_and_register_gold_table(spark, output_df, config)
 
 
 if __name__ == "__main__":

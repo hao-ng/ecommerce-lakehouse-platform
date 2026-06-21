@@ -33,19 +33,19 @@ services:
       - data-platform
 
   # Debezium UI
-  debezium-ui:
-    image: debezium/debezium-ui:latest
-    container_name: debezium-ui
-    hostname: debezium-ui
-    depends_on:
-      debezium:
-        condition: service_healthy
-    ports:
-      - '8080:8080'
-    environment:
-      KAFKA_CONNECT_URIS: http://debezium:8083
-    networks:
-      - data-platform
+  # debezium-ui:
+  #   image: debezium/debezium-ui:latest
+  #   container_name: debezium-ui
+  #   hostname: debezium-ui
+  #   depends_on:
+  #     debezium:
+  #       condition: service_healthy
+  #   ports:
+  #     - '8080:8080'
+  #   environment:
+  #     KAFKA_CONNECT_URIS: http://debezium:8083
+  #   networks:
+  #     - data-platform
 
   cdc:
     image: cdc

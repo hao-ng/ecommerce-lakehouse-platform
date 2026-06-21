@@ -1,0 +1,18 @@
+services:
+  setup-datalake:
+    build:
+      context: ..
+      dockerfile: src/setup/Dockerfile
+    image: setup-datalake:latest
+    container_name: setup-datalake
+    working_dir: /app/setup
+    command: bash setup.sh
+    restart: on-failure
+    ports:
+      - "4040:4040"
+    networks:
+      - data-platform
+
+networks:
+  data-platform:
+    external: true

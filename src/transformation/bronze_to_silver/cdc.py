@@ -43,28 +43,35 @@ def prepare_cdc_batch_for_merge(
 def build_cdc_merge_writer(
     config: SilverConfig, transform_fns: Optional[list[Callable]] = None
 ) -> Callable:
-    merge_key_cols = config.silver_key_cols
-    silver_path = config.silver_path
-    merge_condition = " AND ".join([f"target.{c} = source.{c}" for c in merge_key_cols])
-
+    merge_condition = " AND ".join(
+        [f"target.{c} = source.{c}" for c in config.silver_key_cols]
+    )
     transform_fn = build_transform(config, transform_fns)
 
     def merge_cdc_batch(df: DataFrame, batch_id: int) -> None:
         clean_df = prepare_cdc_batch_for_merge(
-            df, dedup_key_cols=config.dedup_key_cols, transform_fn=transform_fn
+            df,
+            dedup_key_cols=config.dedup_key_cols,
+            transform_fn=transform_fn,
         )
-        col_map = {c: f"source.{c}" for c in clean_df.columns if c != "op"}
+        column_map = {c: f"source.{c}" for c in clean_df.columns if c != "op"}
 
-        if not DeltaTable.isDeltaTable(df.sparkSession, silver_path):
-            clean_df.limit(0).drop("op").write.format("delta").save(silver_path)
+        if not DeltaTable.isDeltaTable(df.sparkSession, config.table_path):
+            (
+                clean_df.limit(0)
+                .drop("op")
+                .write.format("delta")
+                .option("path", config.table_path)
+                .saveAsTable(config.qualified_name)
+            )
 
         (
-            DeltaTable.forPath(df.sparkSession, silver_path)
+            DeltaTable.forPath(df.sparkSession, config.table_path)
             .alias("target")
             .merge(clean_df.alias("source"), merge_condition)
             .whenMatchedDelete(condition="source.op = 'd'")
-            .whenMatchedUpdate(condition="source.op != 'd'", set=col_map)
-            .whenNotMatchedInsert(condition="source.op != 'd'", values=col_map)
+            .whenMatchedUpdate(condition="source.op != 'd'", set=column_map)
+            .whenNotMatchedInsert(condition="source.op != 'd'", values=column_map)
             .execute()
         )
 
