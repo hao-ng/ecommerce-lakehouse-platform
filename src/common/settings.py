@@ -1,10 +1,12 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Optional
 
 
 class BaseEnvConfig(BaseSettings):
     minio_access_key: str
     minio_secret_key: str
     minio_endpoint: str
+    hive_metastore_uri: Optional[str] = None
 
     model_config = SettingsConfigDict(env_file=".env")
 
@@ -15,4 +17,8 @@ class BronzeEnvConfig(BaseEnvConfig):
 
 
 class SilverEnvConfig(BaseEnvConfig):
+    pass
+
+
+class GoldEnvConfig(BaseEnvConfig):
     pass

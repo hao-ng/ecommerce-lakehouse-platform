@@ -23,10 +23,10 @@ def write_stream_to_lakehouse(df: DataFrame, config: BronzeConfig) -> StreamingQ
     return (
         df.writeStream.format("delta")
         .outputMode("append")
-        .option("path", config.output_path)
+        .option("path", config.table_path)
         .option("checkpointLocation", config.checkpoint_location)
         .trigger(processingTime=config.trigger)
-        .start()
+        .toTable(config.qualified_name)
     )
 
 

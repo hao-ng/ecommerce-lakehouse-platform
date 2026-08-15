@@ -29,5 +29,7 @@ def get_spark_session(app_name: str, env: BaseEnvConfig) -> SparkSession:
             "spark.hadoop.fs.s3a.aws.credentials.provider",
             "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",
         )
+        .config("spark.hadoop.hive.metastore.uris", env.hive_metastore_uri)
+        .enableHiveSupport()
         .getOrCreate()
     )

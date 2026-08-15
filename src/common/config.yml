@@ -17,15 +17,18 @@ bronze:
 
 silver:
   customers:
+    source: customers
     source_key_cols: [customer_id]
     cast:
       epoch_days: [birthdate, first_join_date]
 
   products:
+    source: products
     source_key_cols: [id]
 
   transactions:
-    source_key_cols: [id]
+    source: transactions
+    source_key_cols: [booking_id]
     cast:
       timestamp: [created_at, shipment_date_limit]
     children:
@@ -34,6 +37,7 @@ silver:
         merge_key_cols: [booking_id, product_id]
 
   clickstream:
+    source: clickstream
     source_key_cols: ["event_id"]
     children:
       clickstream_add_to_cart_events:
@@ -44,3 +48,13 @@ silver:
         source_key_cols: ["event_id"]
       clickstream_add_promo_events:
         source_key_cols: ["event_id"]
+
+gold:
+  dim_products:
+    sources: [products]
+  dim_customers:
+    sources: [customers]
+  dim_date:
+    sources: []
+  fact_transactions:
+    sources: [transactions]
